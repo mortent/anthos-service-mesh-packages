@@ -1,4 +1,3 @@
----
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
@@ -10,47 +9,47 @@ spec:
   servers:
     - port:
         name: tls-istiod
-        number: 15012
         protocol: tls
-      tls:
-        mode: PASSTHROUGH
+        number: 15012
       hosts:
         - "*"
+      tls:
+        mode: PASSTHROUGH
     - port:
         name: tls-istiodwebhook
-        number: 15017
         protocol: tls
-      tls:
-        mode: PASSTHROUGH
+        number: 15017
       hosts:
         - "*"
+      tls:
+        mode: PASSTHROUGH
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: istiod-vs # {"$ref":"#/definitions/io.k8s.cli.setters.anthos.servicemesh.istiod-vs-name"}
+  name: istiod-vs # kpt-set: ${anthos.servicemesh.istiod-vs-name}
   namespace: istio-system
 spec:
-  hosts:
-    - "*"
   gateways:
     - istiod-gateway
+  hosts:
+    - "*"
   tls:
     - match:
         - port: 15012
           sniHosts:
-            - istiod.istio-system.svc # {"$ref":"#/definitions/io.k8s.cli.setters.anthos.servicemesh.istiodHost"}
+            - istiod.istio-system.svc # kpt-set: ${anthos.servicemesh.istiodHost}
       route:
         - destination:
-            host: istiod.istio-system.svc.cluster.local # {"$ref":"#/definitions/io.k8s.cli.setters.anthos.servicemesh.istiodHostFQDN"}
             port:
               number: 15012
+            host: istiod.istio-system.svc.cluster.local # kpt-set: ${anthos.servicemesh.istiodHostFQDN}
     - match:
         - port: 15017
           sniHosts:
-            - istiod.istio-system.svc # {"$ref":"#/definitions/io.k8s.cli.setters.anthos.servicemesh.istiodHost"}
+            - istiod.istio-system.svc # kpt-set: ${anthos.servicemesh.istiodHost}
       route:
         - destination:
-            host: istiod.istio-system.svc.cluster.local # {"$ref":"#/definitions/io.k8s.cli.setters.anthos.servicemesh.istiodHostFQDN"}
             port:
               number: 443
+            host: istiod.istio-system.svc.cluster.local # kpt-set: ${anthos.servicemesh.istiodHostFQDN}

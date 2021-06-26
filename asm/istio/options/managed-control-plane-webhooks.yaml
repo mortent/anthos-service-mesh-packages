@@ -1,45 +1,30 @@
-# Copyright 2020 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
----
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: ValidatingWebhookConfiguration
 metadata:
   name: istiod-istio-system-mcp
   labels:
     app: istiod
-    release: istio
     istio: istiod
+    release: istio
 webhooks:
   - name: validation.istio.io
+    admissionReviewVersions: ["v1beta1", "v1"]
     clientConfig:
-      url: VALIDATION_URL # {"$ref":"#/definitions/io.k8s.cli.substitutions.validation-url"}
       caBundle: "" # patched at runtime when the webhook is ready.
+      url: VALIDATION_URL # kpt-set: ${anthos.servicemesh.controlplane.validation-url}
+    # Fail open until the validation webhook is ready. The webhook controller
+    # will update this to `Fail` and patch in the `caBundle` when the webhook
+    # endpoint is ready.
+    failurePolicy: Ignore
     rules:
-      - operations:
-          - CREATE
-          - UPDATE
+      - resources:
+          - "*"
         apiGroups:
           - security.istio.io
           - networking.istio.io
         apiVersions:
           - "*"
-        resources:
-          - "*"
-    # Fail open until the validation webhook is ready. The webhook controller
-    # will update this to `Fail` and patch in the `caBundle` when the webhook
-    # endpoint is ready.
-    failurePolicy: Ignore
+        operations:
+          - CREATE
+          - UPDATE
     sideEffects: None
-    admissionReviewVersions: ["v1beta1", "v1"]
