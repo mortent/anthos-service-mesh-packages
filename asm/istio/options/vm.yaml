@@ -15,19 +15,14 @@
 ---
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
+metadata:
+  name: vm
 spec:
   components:
     ingressGateways:
       - name: istio-eastwestgateway
-        label:
-          istio: eastwestgateway
-          app: istio-eastwestgateway
         enabled: true
         k8s:
-          env:
-            # sni-dnat adds the clusters required for AUTO_PASSTHROUGH mode
-            - name: ISTIO_META_ROUTER_MODE
-              value: "sni-dnat"
           service:
             ports:
               - name: status-port
@@ -42,3 +37,10 @@ spec:
               - name: tls-webhook
                 port: 15017
                 targetPort: 15017
+          env:
+            # sni-dnat adds the clusters required for AUTO_PASSTHROUGH mode
+            - name: ISTIO_META_ROUTER_MODE
+              value: "sni-dnat"
+        label:
+          app: istio-eastwestgateway
+          istio: eastwestgateway

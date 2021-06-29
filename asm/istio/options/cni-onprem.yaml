@@ -16,11 +16,13 @@
 ---
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
+metadata:
+  name: cni-onprem
 spec:
   components:
     cni:
-      enabled: true
       namespace: kube-system
+      enabled: true
   values:
     cni:
       cniBinDir: /opt/cni/bin
@@ -28,4 +30,5 @@ spec:
         - istio-system
         - kube-system
         - gke-system
+        # [END docs]
 # [END docs]

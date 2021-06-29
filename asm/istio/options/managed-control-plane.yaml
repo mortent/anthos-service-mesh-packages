@@ -15,44 +15,46 @@
 ---
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
+metadata:
+  name: managed-control-plane
 spec:
   revision: "asm-managed"
-  profile: asm-gcp
-  hub: gcr.io/gke-release/asm # {"$ref":"#/definitions/io.k8s.cli.setters.anthos.servicemesh.hub"}
-  tag: 1.10.2-asm.1 # {"$ref":"#/definitions/io.k8s.cli.setters.anthos.servicemesh.tag"}
   components:
     base:
       enabled: false
-    pilot:
-      enabled: false
     cni:
       enabled: false
-    istiodRemote:
-      enabled: false
     ingressGateways:
-      - enabled: true
-        name: istio-ingressgateway
+      - name: istio-ingressgateway
+        enabled: true
         label:
           app: istio-ingressgateway
           istio: ingressgateway
+    istiodRemote:
+      enabled: false
+    pilot:
+      enabled: false
+  hub: gcr.io/gke-release/asm # kpt-set: ${anthos.servicemesh.hub}
   meshConfig:
-    trustDomain: "PROJECT_ID.svc.id.goog" # {"$ref":"#/definitions/io.k8s.cli.substitutions.trust-domain"}
     defaultConfig:
       proxyMetadata:
         CA_ROOT_CA: "/etc/ssl/certs/ca-certificates.crt"
-        XDS_ROOT_CA: "/etc/ssl/certs/ca-certificates.crt"
+        ISTIO_META_CLOUDRUN_ADDR: "ISTIO_CLOUDRUN_ADDR" # kpt-set: ${anthos.servicemesh.managed-controlplane.cloudrun-addr}
         OUTPUT_CERTS: "/etc/istio/proxy"
         XDS_AUTH_PROVIDER: "gcp"
         XDS_HEADER_Cloud-Run-Enable-H2: "y"
-        ISTIO_META_CLOUDRUN_ADDR: "ISTIO_CLOUDRUN_ADDR" # {"$ref":"#/definitions/io.k8s.cli.setters.anthos.servicemesh.managed-controlplane.cloudrun-addr"}
+        XDS_ROOT_CA: "/etc/ssl/certs/ca-certificates.crt"
+    trustDomain: "PROJECT_ID.svc.id.goog" # kpt-set: ${gcloud.core.project}.svc.id.goog
+  profile: asm-gcp
+  tag: 1.10.2-asm.1 # kpt-set: ${anthos.servicemesh.tag}
   values:
     gateways:
       istio-ingressgateway:
         runAsRoot: true
     global:
+      meshID: "proj-PROJECT_NUMBER" # kpt-set: proj-${gcloud.project.environProjectNumber}
+      multiCluster:
+        clusterName: "cn-PROJECT_ID-CLUSTER_LOCATION-CLUSTER_NAME" # kpt-set: cn-${gcloud.core.project}-${gcloud.compute.location}-${gcloud.container.cluster}
       sds:
         token:
-          aud: "PROJECT_ID.svc.id.goog" # {"$ref":"#/definitions/io.k8s.cli.substitutions.trust-domain"}
-      meshID: "proj-PROJECT_NUMBER" # {"$ref":"#/definitions/io.k8s.cli.substitutions.mesh-id"}
-      multiCluster:
-        clusterName: "cn-PROJECT_ID-CLUSTER_LOCATION-CLUSTER_NAME" # {"$ref":"#/definitions/io.k8s.cli.substitutions.cluster-name"}
+          aud: "PROJECT_ID.svc.id.goog" # kpt-set: ${gcloud.core.project}.svc.id.goog

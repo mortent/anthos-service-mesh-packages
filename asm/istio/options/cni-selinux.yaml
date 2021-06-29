@@ -16,22 +16,25 @@
 ---
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
+metadata:
+  name: cni-selinux
 spec:
   components:
     cni:
-      enabled: true
       namespace: kube-system
+      enabled: true
       k8s:
         overlays:
-          - kind: DaemonSet
-            name: istio-cni-node
+          - name: istio-cni-node
+            kind: DaemonSet
             patches:
-              - path: spec.template.spec.containers.[name:install-cni].securityContext
-                value: {"privileged": true}
+              - value: {"privileged": true}
+                path: spec.template.spec.containers.[name:install-cni].securityContext
   values:
     cni:
       cniBinDir: /home/kubernetes/bin
       excludeNamespaces:
         - istio-system
         - kube-system
+        # [END docs]
 # [END docs]

@@ -16,14 +16,14 @@
 ---
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
+metadata:
+  name: internal-load-balancer
 spec:
   components:
     ingressGateways:
       - name: istio-ingressgateway
         enabled: true
         k8s:
-          serviceAnnotations:
-            cloud.google.com/load-balancer-type: "internal"
           service:
             ports:
               - name: status-port
@@ -34,4 +34,7 @@ spec:
               - name: https
                 port: 443
                 targetPort: 8443
+                # [END docs]
+          serviceAnnotations:
+            cloud.google.com/load-balancer-type: "internal"
 # [END docs]

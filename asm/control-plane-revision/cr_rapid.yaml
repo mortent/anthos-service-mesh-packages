@@ -1,4 +1,3 @@
----
 apiVersion: mesh.cloud.google.com/v1alpha1
 kind: ControlPlaneRevision
 metadata:
@@ -9,15 +8,15 @@ spec:
   channel: rapid
 status:
   conditions:
-    - message: The provisioning process has completed successfully
+    - type: Reconciled
+      status: true
+      message: The provisioning process has completed successfully
       reason: Provisioned
+    - type: ProvisioningFinished
       status: true
-      type: Reconciled
-    - message: Provisioning has finished
+      message: Provisioning has finished
       reason: ProvisioningFinished
-      status: true
-      type: ProvisioningFinished
-    - message: Provisioning has not stalled
-      reason: NotStalled
+    - type: Stalled
       status: false
-      type: Stalled
+      message: Provisioning has not stalled
+      reason: NotStalled

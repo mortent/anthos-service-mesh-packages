@@ -19,27 +19,27 @@ metadata:
   name: istiod-istio-system-mcp
   labels:
     app: istiod
-    release: istio
     istio: istiod
+    release: istio
 webhooks:
   - name: validation.istio.io
+    admissionReviewVersions: ["v1beta1", "v1"]
     clientConfig:
-      url: VALIDATION_URL # {"$ref":"#/definitions/io.k8s.cli.substitutions.validation-url"}
       caBundle: "" # patched at runtime when the webhook is ready.
+      url: VALIDATION_URL # kpt-set: ${anthos.servicemesh.controlplane.validation-url}
+    # Fail open until the validation webhook is ready. The webhook controller
+    # will update this to `Fail` and patch in the `caBundle` when the webhook
+    # endpoint is ready.
+    failurePolicy: Ignore
     rules:
-      - operations:
-          - CREATE
-          - UPDATE
+      - resources:
+          - "*"
         apiGroups:
           - security.istio.io
           - networking.istio.io
         apiVersions:
           - "*"
-        resources:
-          - "*"
-    # Fail open until the validation webhook is ready. The webhook controller
-    # will update this to `Fail` and patch in the `caBundle` when the webhook
-    # endpoint is ready.
-    failurePolicy: Ignore
+        operations:
+          - CREATE
+          - UPDATE
     sideEffects: None
-    admissionReviewVersions: ["v1beta1", "v1"]
